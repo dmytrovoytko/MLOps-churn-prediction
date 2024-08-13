@@ -1,32 +1,23 @@
-import warnings # supress warnings
+import warnings  # supress warnings
+
 # warnings.simplefilter("ignore", category=UserWarning)
 warnings.filterwarnings('ignore')
 
 from time import time
 
-import numpy as np
-import pandas as pd
-# Display all columns
-# pd.set_option('display.max_columns', None)
-# pd.set_option('display.max_rows', None)
-
-
-import seaborn as sns
-import matplotlib.pyplot as plt
-
 import mlflow
-from mlflow.tracking import MlflowClient
 from mlflow.entities import ViewType
-
+from mlflow.tracking import MlflowClient
 from prefect import flow, task
 
-from settings import DEBUG, DATASET_NUM, DATA_DIR, TARGET
-from settings import MODEL_DIR, EXPERIMENT_NAME
+from settings import DATA_DIR, DATASET_NUM, EXPERIMENT_NAME, MODEL_DIR, TARGET
 
+from settings import DEBUG # isort:skip
+DEBUG = True # True # False # override global settings
+
+from predict import predict_df, print_results
 from preprocess import load_data
 from train_model import train_model
-from predict import predict_df, print_results
-
 
 ###########################
 
@@ -36,7 +27,7 @@ def run_experiment(df, params, run_name):
     random_state = 42
     print(f'\nStarting experiment [{run_name}]...')
     print(f' params: {params}')
-    
+
     mlflow.autolog()
     with mlflow.start_run(run_name=run_name) as run:
         mlflow.log_params(params)
@@ -73,7 +64,7 @@ def run_register_model(MODEL_DIR, top_n: int =1):
     # Select the model with the highest key metric
     KEY_METRIC = 'test_accuracy_score'
     experiment = client.get_experiment_by_name(EXPERIMENT_NAME)
-    best_runs = client.search_runs( 
+    best_runs = client.search_runs(
         experiment_ids=experiment.experiment_id,
         run_view_type=ViewType.ACTIVE_ONLY,
         filter_string=f'params.dataset="{DATASET_NUM}"',
@@ -118,26 +109,26 @@ def test_model(test_data, MODEL_DIR):
 @flow
 def ml_workflow():
     mlflow.set_experiment(EXPERIMENT_NAME)
-    
+
     df = load_data()
 
     # Training with different hyper parameters
     for classifier in [
-                    'DecisionTreeClassifier', 
-                    # 'RandomForestClassifier', 
-                    # 'XGBClassifier',
+                    'DecisionTreeClassifier',
+                    'RandomForestClassifier',
+                    'XGBClassifier',
                     ]:
         for estimator in ['accuracy', 'balanced_accuracy', 'roc_auc']: #_score
             for cv in [2]: # [2, 5]: # (x)-fold cross validation
-                for balance in [False]: # [False, True]: # balance dataset on target labels? 
-                    params = {'classifier': classifier, 
+                for balance in [False]: # [False, True]: # balance dataset on target labels?
+                    params = {'classifier': classifier,
                                 'estimator': estimator,
                                 'dataset': DATASET_NUM,
                                 'cv': cv,
                                 'test_size': 0.2,
-                                'balance': balance, 
+                                'balance': balance,
                                 }
-                    run_experiment(df, params=params, 
+                    run_experiment(df, params=params,
                                     run_name=f"classifier {params['classifier']}, estimator {params['estimator']}")
 
     # register and save the best model
@@ -155,11 +146,10 @@ if __name__ == '__main__':
     TESTING_MODE1 = False # True # False
     if TESTING_MODE1:
         # load and preprocess dataset
-        df = load_data() 
+        df = load_data()
         test_model(df, MODEL_DIR)
 
     REGISTER_MODEL = False # False # True
     if REGISTER_MODEL:
         MODEL_DIR = f'./model/{DATASET_NUM}/'
         run_register_model(MODEL_DIR)
-
