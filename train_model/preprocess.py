@@ -7,12 +7,14 @@ import numpy as np
 import pandas as pd
 from sklearn.preprocessing import OrdinalEncoder
 
-from settings import DEBUG, DATASET_NUM, DATA_DIR, TARGET, REMOVE_OUTLIERS
+from settings import DATA_DIR, DATASET_NUM, REMOVE_OUTLIERS, TARGET
+
+from settings import DEBUG # isort:skip
 # DEBUG = True # True # False # override global settings
 
 def load_dataset(dataset_num=DATASET_NUM):
     print('\nLoading dataset...')
-    if dataset_num==1:    
+    if dataset_num==1:
             file_name = 'E Commerce Dataset.xlsx'
             data = pd.read_excel(DATA_DIR + file_name, sheet_name='E Comm')
             if DEBUG:
@@ -129,7 +131,7 @@ def preprocess_df(data):
                 data = data[(data[col] >= lower) & (data[col] <= upper)]
 
     print(f'\nFinal number of records:', data.shape[0],'/',total_rows_number,
-                            '=', f'{data.shape[0]/total_rows_number*100:05.2f}%')
+                            '=', f'{data.shape[0]/total_rows_number*100:05.2f}%','\n')
     return data
 
 
@@ -155,7 +157,7 @@ def preprocess_data(df, ord_enc, dataset_num=DATASET_NUM, fit_enc=False):
     # fix missing values, remove outliers
     df = preprocess_df(df)
 
-    # encode categorical 
+    # encode categorical
     categorical_features = df.select_dtypes(exclude=[np.number]).columns
     if len(categorical_features):
         if DEBUG:
@@ -207,7 +209,7 @@ if __name__ == '__main__':
         (50005,1,0.0,'Phone',1,12.0,'CC','Male',None,3,'Mobile',5,'Single',3,0,11.0,1.0,1.0,3.0,129.6),
         (50006,1,0.0,'Computer',1,22.0,'Debit Card','Female',3.0,5,'Mobile Phone',5,'Single',2,1,22.0,4.0,6.0,7.0,139.19),
     ]
-    
+
     columns = [
         'CustomerID','Churn','Tenure','PreferredLoginDevice','CityTier','WarehouseToHome','PreferredPaymentMode','Gender',
         'HourSpendOnApp','NumberOfDeviceRegistered','PreferedOrderCat','SatisfactionScore','MaritalStatus',
@@ -232,16 +234,15 @@ if __name__ == '__main__':
         (202006,45929827382,'Female','No','Yes',72,'Yes','Yes','Yes','Yes',115.5,8312.75,'No'),
         (202006,45305082233,'Female','No','Yes',56,'Yes','Yes','Yes','No',81.25,4620.4,'No'),
     ]
-    
+
     columns = [
         'UpdatedAt','customerID','gender','SeniorCitizen','Partner','tenure','PhoneService','StreamingTV',
         'InternetService','PaperlessBilling','MonthlyCharges','TotalCharges','Churn',
     ]
     df = pd.DataFrame(data, columns=columns)
-    df = preprocess_df(df)    
+    df = preprocess_df(df)
     print('\n',2222,'\n', df.head(1).to_string())
     dataset_num = 2
     ord_enc = enc_load(f'{DATA_DIR}encoder{dataset_num}.pkl')
     df = preprocess_data(df1, ord_enc, 1, fit_enc=False)
     print('\n',2222-2,'\n', df.head(1).to_string())
-
