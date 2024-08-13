@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 from sklearn.preprocessing import OrdinalEncoder
 
-from settings import DATA_DIR, DATASET_NUM, REMOVE_OUTLIERS, TARGET
+from settings import DATA_DIR, DATASET_NUM, MODEL_DIR, REMOVE_OUTLIERS, TARGET
 
 from settings import DEBUG # isort:skip
 # DEBUG = True # True # False # override global settings
@@ -15,26 +15,26 @@ from settings import DEBUG # isort:skip
 def load_dataset(dataset_num=DATASET_NUM):
     print('\nLoading dataset...')
     if dataset_num==1:
-            file_name = 'E Commerce Dataset.xlsx'
-            data = pd.read_excel(DATA_DIR + file_name, sheet_name='E Comm')
-            if DEBUG:
-                    data_dict = pd.read_excel(DATA_DIR + 'E Commerce Dataset.xlsx', sheet_name='Data Dict')
-                    data.to_csv(DATA_DIR+file_name+'.csv', encoding='utf-8', index=False)
-                    data_dict.to_csv(DATA_DIR+file_name[:-5]+'_dict.csv', encoding='utf-8', index=False)
+        file_name = 'E Commerce Dataset.xlsx'
+        data = pd.read_excel(DATA_DIR + file_name, sheet_name='E Comm')
+        if DEBUG:
+            data_dict = pd.read_excel(DATA_DIR + 'E Commerce Dataset.xlsx', sheet_name='Data Dict')
+            data.to_csv(DATA_DIR+file_name+'.csv', encoding='utf-8', index=False)
+            data_dict.to_csv(DATA_DIR+file_name[:-5]+'_dict.csv', encoding='utf-8', index=False)
     elif dataset_num==2:
-            file_name = 'dqlab_telco_final.csv'
-            data = pd.read_csv(DATA_DIR + file_name)
+        file_name = 'dqlab_telco_final.csv'
+        data = pd.read_csv(DATA_DIR + file_name)
     else:
-            print('Load data Error: incorrect dataset number:', dataset_num)
-            return pd.DataFrame()
+        print('Load data Error: incorrect dataset number:', dataset_num)
+        return pd.DataFrame()
 
     if DEBUG:
-            print(f' Loaded {data.shape[0]} records.')
-            # print(data.dtypes.to_string())
-            print(pd.DataFrame(data.info()).to_string())
-            # print(data_dict.dtypes)
-            print(data.head())
-            # print(data_dict.head())
+        print(f' Loaded {data.shape[0]} records.')
+        # print(data.dtypes.to_string())
+        print(pd.DataFrame(data.info()).to_string())
+        # print(data_dict.dtypes)
+        print(data.head())
+        # print(data_dict.head())
 
     return data
 

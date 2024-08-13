@@ -1,11 +1,18 @@
 import pickle
-import pandas as pd
 
-from sklearn.metrics import classification_report, confusion_matrix, accuracy_score, balanced_accuracy_score
+import pandas as pd
+from sklearn.metrics import (
+    accuracy_score,
+    balanced_accuracy_score,
+    classification_report,
+    confusion_matrix
+)
 
 from preprocess import enc_load, preprocess_data
+from settings import DATA_DIR, DATASET_NUM, MODEL_DIR, TARGET
 
-from settings import DEBUG, DATASET_NUM, DATA_DIR, MODEL_DIR, TARGET
+from settings import DEBUG # isort:skip
+# DEBUG = True # True # False # override global settings
 
 def print_results(classifier, y_test, predict_y, verbose=DEBUG):
     print(f'\n================\n{classifier}')
@@ -24,15 +31,15 @@ def predict_df(df, MODEL_DIR, verbose=DEBUG):
         test_data = df
 
     cols = test_data.columns.to_list()
-    X_test = pd.DataFrame(test_data, columns=cols) 
+    X_test = pd.DataFrame(test_data, columns=cols)
     if TARGET in cols:
         y_test = X_test.pop(TARGET)
     else:
         y_test = pd.Series()
-    
+
     try:
-        model = pickle.load(open(f'{MODEL_DIR}model.pkl', 'rb'))   
-        # print('model.get_params:', model.get_params()) 
+        model = pickle.load(open(f'{MODEL_DIR}model.pkl', 'rb'))
+        # print('model.get_params:', model.get_params())
     except Exception as e:
         print('!!! Exception while loading model:', e)
         return pd.Series()
@@ -117,7 +124,6 @@ if __name__ == '__main__':
         print('!!! Predict test, incorrect dataset number:', DATASET_NUM)
         exit(1)
 
-    MODEL_DIR = f'./model/{DATASET_NUM}/'
     y_pred = predict_df(df, MODEL_DIR, verbose=True)
 
     columns = df.columns.to_list()
