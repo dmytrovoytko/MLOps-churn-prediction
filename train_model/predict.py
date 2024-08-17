@@ -8,11 +8,13 @@ from sklearn.metrics import (
     confusion_matrix
 )
 
-from preprocess import enc_load, preprocess_data
+from preprocess import enc_load, preprocess_data, model_dir
 from settings import DATA_DIR, DATASET_NUM, MODEL_DIR, TARGET
 
 from settings import DEBUG # isort:skip
 # DEBUG = True # True # False # override global settings
+
+from utils import S3_ENDPOINT_URL, S3_BUCKET # isort:skip
 
 def print_results(classifier, y_test, predict_y, verbose=DEBUG):
     print(f'\n================\n{classifier}')
@@ -56,6 +58,19 @@ def predict_df(df, MODEL_DIR, verbose=DEBUG):
         print(f'!!! Exception while predicting {TARGET}:', e)
         return pd.Series()
 
+def predict_dict(object, dataset_num, verbose=False):
+    # transform dict to create df from it
+    dct = {k:[v] for k,v in object.items()}
+    df = pd.DataFrame(dct)
+    ord_enc = enc_load(f'{model_dir(dataset_num)}encoder.pkl')
+    df = preprocess_data(df, ord_enc, dataset_num, fit_enc=False)
+    # model_dir = f'./model/{dataset_num}/'
+    y_pred = predict_df(df, model_dir(dataset_num), verbose=verbose)
+    result = { str(TARGET).lower(): int(list(y_pred)[0]) } # explicit int() is reqiered for serialization
+    if DEBUG:
+        print('result:', result)
+
+    return result
 
 
 if __name__ == '__main__':
@@ -81,7 +96,7 @@ if __name__ == '__main__':
         df = pd.DataFrame(data, columns=columns)
         # df.drop(['CustomerID', 'Churn'], axis=1, inplace = True)
         dataset_num = 1
-        ord_enc = enc_load(f'{DATA_DIR}encoder{dataset_num}.pkl')
+        ord_enc = enc_load(f'{model_dir(dataset_num)}encoder.pkl')
         df = preprocess_data(df, ord_enc, dataset_num, fit_enc=False)
         # print('OrdinalEncoder categories:', ord_enc.categories_)
         # # df = preprocess_data(df, ord_enc, 1, fit_enc=True)
@@ -109,7 +124,7 @@ if __name__ == '__main__':
         df = pd.DataFrame(data, columns=columns)
         # df.drop(['CustomerID', 'Churn'], axis=1, inplace = True)
         dataset_num = 2
-        ord_enc = enc_load(f'{DATA_DIR}encoder{dataset_num}.pkl')
+        ord_enc = enc_load(f'{model_dir(dataset_num)}encoder.pkl')
         df = preprocess_data(df, ord_enc, dataset_num, fit_enc=False)
         # print('OrdinalEncoder categories:', ord_enc.categories_)
         # # df = preprocess_data(df, ord_enc, 1, fit_enc=True)
@@ -129,3 +144,9 @@ if __name__ == '__main__':
     columns = df.columns.to_list()
     if TARGET in columns:
         print_results('Saved model', df[TARGET], y_pred, verbose=True)
+
+    # test predict_dict .drop([TARGET], axis=1)
+    row = df.to_dict('records')[0]
+    expected_result = row.pop(TARGET, None)
+    result = predict_dict(row, DATASET_NUM, verbose=True)
+    print(f'\npredict_dict: data {row} -> {result} // expected: {expected_result}')

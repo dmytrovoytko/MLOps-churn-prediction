@@ -9,8 +9,19 @@ from sklearn.preprocessing import OrdinalEncoder
 
 from settings import DATA_DIR, DATASET_NUM, MODEL_DIR, REMOVE_OUTLIERS, TARGET
 
+# Display all columns
+# pd.set_option('display.max_columns', None)
+# pd.set_option('display.max_rows', None)
+
+
+
 from settings import DEBUG # isort:skip
-# DEBUG = True # True # False # override global settings
+DEBUG = True # True # False # override global settings
+
+from utils import S3_ENDPOINT_URL, S3_BUCKET # isort:skip
+
+def model_dir(dataset_num=DATASET_NUM):
+    return f'./model/{dataset_num}/'  # ! with '/' at the end!
 
 def load_dataset(dataset_num=DATASET_NUM):
     print('\nLoading dataset...')
@@ -74,9 +85,11 @@ def preprocess_df(data):
     columns = data.columns.to_list()
 
     # 1. drop useless columns
-    useless_columns = ['CustomerID', 'customerID', 'UpdatedAt']
+    useless_columns = ['CustomerID', 'customerID', 'UpdatedAt', ] #'InternetService']
     for col in useless_columns:
         if col in columns: # exists in df
+            if DEBUG and col.lower()=='customerid':
+                print(f'Total rows: {total_rows_number}, unique {col}s: {data[col].nunique()}')
             data.drop([col], axis=1, inplace = True)
 
     # 2. inspect categorical columns
@@ -97,8 +110,9 @@ def preprocess_df(data):
         for col in categorical:
             print('\n by', data[col].value_counts().to_string())
 
-        corr = data.corr(numeric_only=True)[target]
-        print(f'\nCorrelation to {target}:\n{corr.to_string()}')
+        if len(data)>10:
+            corr = data.corr(numeric_only=True)[target]
+            print(f'\nCorrelation to {target}:\n{corr.to_string()}')
 
     # 3. inspect missing values
     nan_cols = data.columns[data.isnull().any()].to_list()
@@ -140,20 +154,18 @@ def enc_save(enc, file_name):
         pickle.dump(enc, f)
 
 def enc_load(file_name):
+    # if S3_ENDPOINT_URL:
+    #     try:
+    #         s3_download_file(S3, S3_BUCKET, 'model/encoder.pkl', f'{MODEL_DIR}encoder.pkl', verbose=DEBUG)
+    #     except Exception as e:
+    #         print(f'! Error S3_ENDPOINT_URL {S3_ENDPOINT_URL}, S3_BUCKET {S3_BUCKET}\n', e)
+
     with open(file_name, 'rb') as f:
         enc = pickle.load(f)
         return enc
     return OrdinalEncoder()
 
 def preprocess_data(df, ord_enc, dataset_num=DATASET_NUM, fit_enc=False):
-    # if dataset_num==1:
-    #     df = preprocess1(df)
-    # elif dataset_num==2:
-    #     df = preprocess2(df)
-    # else:
-    #   print('Preprocess data Error: incorrect dataset number:', dataset_num)
-    #   return df
-
     # fix missing values, remove outliers
     df = preprocess_df(df)
 
@@ -167,12 +179,17 @@ def preprocess_data(df, ord_enc, dataset_num=DATASET_NUM, fit_enc=False):
         if fit_enc:
             # Fit and Transform the data
             df[categorical_features] = ord_enc.fit_transform(df[categorical_features])
-            enc_save(ord_enc, f'{DATA_DIR}encoder{dataset_num}.pkl')
+            enc_save(ord_enc, f'{model_dir(dataset_num)}encoder.pkl')
             if DEBUG:
                 print(' OrdinalEncoder categories:', ord_enc.categories_)
         else:
             # Only Transform the data (using pretrained encoder)
             df[categorical_features] = ord_enc.transform(df[categorical_features])
+
+    columns = df.columns.to_list()
+    if DEBUG and TARGET in columns and len(df)>10:
+        corr = df.corr(numeric_only=True)[TARGET]
+        print(f'\nCorrelation-2 to {TARGET}:\n{corr.to_string()}')
 
     return df
 
@@ -194,8 +211,9 @@ def load_data(dataset_num=DATASET_NUM):
 
 if __name__ == '__main__':
     # full dataset 1
-    # df = load_data(1)
-    # print('\nreal 1\n', df.head(5).to_string())
+    df = load_data(1)
+    print('\nreal 1\n', df.head(5).to_string())
+    # full dataset 2
     df = load_data(2)
     print('\nreal 2\n', df.head(5).to_string())
     # exit()
@@ -220,7 +238,7 @@ if __name__ == '__main__':
     df1 = preprocess_df(df)
     print('\n',1111,'\n', df1.head(1).to_string())
     dataset_num = 1
-    ord_enc = enc_load(f'{DATA_DIR}encoder{dataset_num}.pkl')
+    ord_enc = enc_load(f'{model_dir(dataset_num)}encoder.pkl')
     df = preprocess_data(df1, ord_enc, 1, fit_enc=False)
     print('\n',1111-2,'\n', df.head(1).to_string())
 
@@ -243,6 +261,6 @@ if __name__ == '__main__':
     df = preprocess_df(df)
     print('\n',2222,'\n', df.head(1).to_string())
     dataset_num = 2
-    ord_enc = enc_load(f'{DATA_DIR}encoder{dataset_num}.pkl')
+    ord_enc = enc_load(f'{model_dir(dataset_num)}encoder.pkl')
     df = preprocess_data(df1, ord_enc, 1, fit_enc=False)
     print('\n',2222-2,'\n', df.head(1).to_string())

@@ -1,4 +1,4 @@
-import warnings  # supress warnings
+import warnings
 
 # warnings.simplefilter("ignore", category=UserWarning)
 warnings.filterwarnings('ignore')
@@ -10,10 +10,12 @@ from mlflow.entities import ViewType
 from mlflow.tracking import MlflowClient
 from prefect import flow, task
 
-from settings import DATA_DIR, DATASET_NUM, EXPERIMENT_NAME, MODEL_DIR, TARGET
+from settings import DATA_DIR, DATASET_NUM, EXPERIMENT_NAME, MODEL_DIR, MODEL_PREFIX, TARGET
 
 from settings import DEBUG # isort:skip
 DEBUG = True # True # False # override global settings
+
+from utils import S3_ENDPOINT_URL, S3_BUCKET # isort:skip
 
 from predict import predict_df, print_results
 from preprocess import load_data
@@ -43,6 +45,59 @@ def run_experiment(df, params, run_name):
 
     # mlflow.end_run()
     print(f'Experiment finished in {(time() - t_start):.3f} second(s)\n')
+
+def feature_importances_chart(feature_importances, classifier_name):
+    import matplotlib.pyplot as plt
+    import pandas as pd
+    import seaborn as sns
+    VISUALS_DIR = './data/'
+    # df = pd.DataFrame(feature_importances, columns=['Feature', 'Importance']).set_index('Feature').sort_values("Importance", ascending=False)
+    df = pd.DataFrame(feature_importances, columns=['Feature','Importance']).set_index('Feature').sort_values("Importance", ascending=False)
+    # # import seaborn as sns
+    ax = sns.barplot(x="Importance", y="Feature", data=df, color="b")
+    title = f'Model {DATASET_NUM} {classifier_name} feature importances'
+    # print(df)
+    # ax = df.plot(kind='barh', legend=False) #.barh()#x="Feature", y="Importance")
+    plt.title(title)
+    plt.tight_layout() # proper padding for feature names
+    plt.savefig(VISUALS_DIR+f'bar-feature_importances_{classifier_name}-{DATASET_NUM}.png')
+
+
+def model_features(MODEL_DIR, verbose=DEBUG):
+    try:
+        model = mlflow.pyfunc.load_model(MODEL_DIR) # f"runs:/{run_id}/model")
+        print('\n_model_meta._signature:\n', model._model_meta._signature)
+        # import json
+        features_ = model._model_meta._signature.inputs.input_names() #json.loads(model._model_meta._signature.inputs) # list(model._model_meta._signature.inputs)
+        # print(f"features_: {features_}")
+        import pickle
+        model = pickle.load(open(f'{MODEL_DIR}model.pkl', 'rb'))
+        # feature_importances_ =list(model.best_estimator_.feature_importances_)
+        feature_importances_ = dict(zip(features_, list(model.best_estimator_.feature_importances_)))
+        feature_importances = sorted(feature_importances_.items(), key=lambda x:x[1], reverse=True)
+        # print(f"feature_importances_: {feature_importances_}")
+        classifier_name = str(type(model.best_estimator_)).strip('<\'>').split('.')[-1]
+        print(classifier_name, 'feature_importances:', feature_importances)
+
+        feature_importances_chart(feature_importances, classifier_name)
+
+    except Exception as e:
+        print('!!! Exception while loading model:', e)
+        return
+
+    if 'XGBClassifier' in classifier_name:
+        try:
+            import matplotlib.pyplot as plt
+            from xgboost import plot_importance
+
+            plot_importance(model.best_estimator_._Booster)
+            # plt.show()
+            VISUALS_DIR = './data/'
+            plt.tight_layout() # proper padding for feature names
+            plt.savefig(VISUALS_DIR+f'feature_importances_{classifier_name}-{DATASET_NUM}.png')
+        except Exception as e:
+            print('Error:', e)
+
 
 @task
 def run_register_model(MODEL_DIR, top_n: int =1):
@@ -97,6 +152,27 @@ def run_register_model(MODEL_DIR, top_n: int =1):
     dest = MODEL_DIR
     shutil.copytree(src, dest, dirs_exist_ok=True)  # 3.8+ only!
     print(f'\nModel saved to {dest}')
+
+    if S3_ENDPOINT_URL:
+        from utils import S3 as s3
+        from utils import s3_list_buckets, s3_list_objects, s3_upload_files
+        buckets = s3_list_buckets(s3)
+        bucket_name = S3_BUCKET
+        if not bucket_name in buckets:
+            s3.create_bucket(Bucket=bucket_name)
+            buckets = s3_list_buckets(s3)
+            print(S3_BUCKET, 'created?', buckets)
+        # upload model dir & encoder file to S3 BUCKET
+        s3_upload_files(s3, bucket_name, MODEL_DIR, prefix_key=MODEL_PREFIX) # f'model/{DATASET_NUM}/'
+        s3_upload_files(s3, bucket_name, f'{MODEL_DIR}encoder.pkl', prefix_key=MODEL_PREFIX) # f'model/{DATASET_NUM}/'
+        if DEBUG:
+            objects = s3_list_objects(s3, bucket_name, filter='')
+            print('\n--------')
+            print('S3 objects:', sorted(objects))
+            print('--------')
+
+    # run_id = best_run.info.run_id
+    model_features(MODEL_DIR, verbose=DEBUG)
 
 @task
 def test_model(test_data, MODEL_DIR):
@@ -153,3 +229,26 @@ if __name__ == '__main__':
     if REGISTER_MODEL:
         MODEL_DIR = f'./model/{DATASET_NUM}/'
         run_register_model(MODEL_DIR)
+
+    # model_features(MODEL_DIR, verbose=DEBUG)
+
+    TESTING_S3 = False # True # False
+    if TESTING_S3 and S3_ENDPOINT_URL:
+        from utils import S3 as s3
+        from utils import s3_list_buckets, s3_list_objects, s3_upload_files
+        buckets = s3_list_buckets(s3)
+        bucket_name = S3_BUCKET
+        if not bucket_name in buckets:
+            s3.create_bucket(Bucket=bucket_name)
+            buckets = s3_list_buckets(s3)
+            print(S3_BUCKET, 'created?', buckets)
+        objects = s3_list_objects(s3, bucket_name, filter='model/')
+        print('\n--------')
+        print('S3 objects:', sorted(objects))
+        print('--------')
+        s3_upload_files(s3, bucket_name, MODEL_DIR, prefix_key=MODEL_PREFIX)
+        s3_upload_files(s3, bucket_name, f'{MODEL_DIR}encoder.pkl', prefix_key=MODEL_PREFIX)
+        objects = s3_list_objects(s3, bucket_name, filter='')
+        print('\n--------')
+        print('S3 objects:', sorted(objects))
+        print('--------')
