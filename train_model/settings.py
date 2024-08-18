@@ -1,16 +1,18 @@
 # show extra information for checking execution
-DEBUG = False # True # False
+DEBUG = False  # True # False
 
-DATASET_NUM = 1 # 1 # 2
-DATA_DIR = f'./data/' # ! with '/' at the end!
+DATASET_NUM = 1  # 1 # 2
+DATA_DIR = f'./data/'  # ! with '/' at the end!
 MODEL_DIR = f'./model/{DATASET_NUM}/'  # ! with '/' at the end!
-MODEL_PREFIX = MODEL_DIR.lstrip('./') # so S3 prefix would be 'model/1/' or 'model/2/'
+MODEL_PREFIX = MODEL_DIR.lstrip('./')  # so S3 prefix would be 'model/1/' or 'model/2/'
+
+VISUALS_DIR = './screenshots/'  # ! with '/' at the end!
 
 # preprocessing, training, prediction
-TARGET = "Churn" # labels column
+TARGET = "Churn"  # labels column
 
 # preprocessing
-REMOVE_OUTLIERS = False # True # False
+REMOVE_OUTLIERS = False  # True # False
 
 # mlflow training
 EXPERIMENT_NAME = "Training Regression model for churn prediction"
