@@ -1,10 +1,12 @@
 import pandas as pd
 
+from preprocess import preprocess_data, enc_load, model_dir
 from settings import DATASET_NUM, DATA_DIR, MODEL_DIR, TARGET
-from preprocess import preprocess_data, enc_load
 from train_model import prepare_training
 
+
 def test_predict_df():
+    # fmt: off
     if DATASET_NUM==1:
         # dataset 1
         data = [
@@ -49,12 +51,13 @@ def test_predict_df():
     else:
         print('Incorrect dataset number:', DATASET_NUM)
         assert False
+    # fmt: on
 
     # 1. prepare data
     df = pd.DataFrame(data, columns=columns)
-    ord_enc = enc_load(f'{DATA_DIR}encoder{DATASET_NUM}.pkl')
+    ord_enc = enc_load(f'{model_dir(DATASET_NUM)}encoder.pkl')
     df = preprocess_data(df, ord_enc, DATASET_NUM, fit_enc=False)
-    assert df.shape[0]>0
+    assert df.shape[0] > 0
     actual_columns = list(df.columns)
     assert len(actual_columns) == len(expected_columns)
     assert all([a == b for a, b in zip(actual_columns, expected_columns)])
@@ -64,9 +67,9 @@ def test_predict_df():
     # 2. test data split/balance before training
     params = {'balance': True, 'test_size': 0.5, 'random_state': 42}
     X_train, X_test, y_train, y_test, res = prepare_training(df, params)
-    assert res['min_subset']>0 # balancing of target labels done?
+    assert res['min_subset'] > 0  # balancing of target labels done?
     assert len(X_train) == len(y_train)
-    assert -1 <= len(X_train)-len(X_test) <=1 # test_size=0.5? +-1 as total size can be odd
+    assert -1 <= len(X_train) - len(X_test) <= 1  # test_size=0.5? +-1 as total size can be odd
 
     params = {'balance': False, 'test_size': 0.3, 'random_state': 42}
     X_train, X_test, y_train, y_test, _ = prepare_training(df, params)
@@ -77,4 +80,3 @@ def test_predict_df():
         assert label in [0, 1]
     for label in list(y_test):
         assert label in [0, 1]
-

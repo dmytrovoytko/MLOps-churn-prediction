@@ -1,10 +1,12 @@
 import pandas as pd
 
-from settings import DATASET_NUM, DATA_DIR, MODEL_DIR, TARGET
-from preprocess import preprocess_data, enc_load
 from predict import predict_df
+from preprocess import enc_load, preprocess_data, model_dir
+from settings import DATASET_NUM, DATA_DIR, MODEL_DIR, TARGET
+
 
 def test_predict_df():
+    # fmt: off
     if DATASET_NUM==1:
         # dataset 1
         data = [
@@ -48,13 +50,14 @@ def test_predict_df():
     else:
         print('Incorrect dataset number:', DATASET_NUM)
         assert False
+    # fmt: on
 
     df = pd.DataFrame(data, columns=columns)
-    ord_enc = enc_load(f'{DATA_DIR}encoder{DATASET_NUM}.pkl')
+    ord_enc = enc_load(f'{model_dir(DATASET_NUM)}encoder.pkl')
 
     # test 1: with target labels - as while training models
     df = preprocess_data(df, ord_enc, DATASET_NUM, fit_enc=False)
-    assert df.shape[0]>0
+    assert df.shape[0] > 0
     actual_columns = list(df.columns)
     assert len(actual_columns) == len(expected_columns)
     assert all([a == b for a, b in zip(actual_columns, expected_columns)])
@@ -71,7 +74,7 @@ def test_predict_df():
     df = pd.DataFrame(data, columns=columns)
     df = df.drop([TARGET], axis=1)
     df = preprocess_data(df, ord_enc, DATASET_NUM, fit_enc=False)
-    assert df.shape[0]>0
+    assert df.shape[0] > 0
     actual_result = predict_df(df, MODEL_DIR, verbose=True)
     for label in list(actual_result):
         assert label in [0, 1]

@@ -1,9 +1,11 @@
 import pandas as pd
 
-from settings import  DATASET_NUM, DATA_DIR, TARGET
-from preprocess import load_dataset, preprocess_data, enc_load
+from preprocess import load_dataset, preprocess_data, enc_load, model_dir
+from settings import DATASET_NUM, DATA_DIR, TARGET
+
 
 def test_load_dataset():
+    # fmt: off
     if DATASET_NUM==1:
         # dataset 1
         expected_columns = [
@@ -23,8 +25,9 @@ def test_load_dataset():
     else:
         print('Incorrect dataset number:', DATASET_NUM)
         assert False
+    # fmt: on
 
-    assert df.shape[0]>0
+    assert df.shape[0] > 0
     actual_columns = list(df.columns)
     assert TARGET in actual_columns
     assert len(actual_columns) == len(expected_columns)
@@ -32,7 +35,9 @@ def test_load_dataset():
 
     print(all([a == b for a, b in zip(actual_columns, expected_columns)]))
 
+
 def test_preprocess_data():
+    # fmt: off
     if DATASET_NUM==1:
         # dataset 1
         data = [
@@ -72,15 +77,15 @@ def test_preprocess_data():
     else:
         print('Incorrect dataset number:', DATASET_NUM)
         assert False
+    # fmt: on
 
     df = pd.DataFrame(data, columns=columns)
-    ord_enc = enc_load(f'{DATA_DIR}encoder{DATASET_NUM}.pkl')
+    ord_enc = enc_load(f'{model_dir(DATASET_NUM)}encoder.pkl')
     df = preprocess_data(df, ord_enc, DATASET_NUM, fit_enc=False)
-    assert df.shape[0]>0
+    assert df.shape[0] > 0
     actual_columns = list(df.columns)
     assert TARGET in actual_columns
     assert len(actual_columns) == len(expected_columns)
     assert all([a == b for a, b in zip(actual_columns, expected_columns)])
 
     print(all([a == b for a, b in zip(actual_columns, expected_columns)]))
-
