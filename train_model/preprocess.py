@@ -16,7 +16,7 @@ from settings import DATA_DIR, DATASET_NUM, MODEL_DIR, REMOVE_OUTLIERS, TARGET
 
 from settings import DEBUG  # isort:skip
 
-DEBUG = True  # True # False # override global settings
+# DEBUG = True  # True # False # override global settings
 
 from utils import S3_ENDPOINT_URL, S3_BUCKET  # isort:skip
 
