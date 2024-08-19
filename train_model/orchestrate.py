@@ -202,8 +202,8 @@ def ml_workflow():
     # Training with different hyper parameters
     for classifier in [
         'DecisionTreeClassifier',
-        'RandomForestClassifier',
-        'XGBClassifier',
+        # 'RandomForestClassifier',
+        # 'XGBClassifier',
     ]:
         for estimator in ['accuracy', 'balanced_accuracy', 'roc_auc']:  # _score
             for cv in [2]:  # [2, 5]: # (x)-fold cross validation

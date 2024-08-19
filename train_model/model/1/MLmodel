@@ -1,0 +1,37 @@
+artifact_path: model
+flavors:
+  python_function:
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.sklearn
+    model_path: model.pkl
+    predict_fn: predict
+    python_version: 3.11.8
+  sklearn:
+    code: null
+    pickled_model: model.pkl
+    serialization_format: cloudpickle
+    sklearn_version: 1.5.0
+mlflow_version: 2.15.1
+model_size_bytes: 1328949
+model_uuid: 54b60a8f531047cd85719ac85094ac9f
+run_id: b2b2d7944a524f8581fe1327b637cef1
+signature:
+  inputs: '[{"type": "double", "name": "Tenure", "required": true}, {"type": "double",
+    "name": "PreferredLoginDevice", "required": true}, {"type": "long", "name": "CityTier",
+    "required": true}, {"type": "double", "name": "WarehouseToHome", "required": true},
+    {"type": "double", "name": "PreferredPaymentMode", "required": true}, {"type":
+    "double", "name": "Gender", "required": true}, {"type": "double", "name": "HourSpendOnApp",
+    "required": true}, {"type": "long", "name": "NumberOfDeviceRegistered", "required":
+    true}, {"type": "double", "name": "PreferedOrderCat", "required": true}, {"type":
+    "long", "name": "SatisfactionScore", "required": true}, {"type": "double", "name":
+    "MaritalStatus", "required": true}, {"type": "long", "name": "NumberOfAddress",
+    "required": true}, {"type": "long", "name": "Complain", "required": true}, {"type":
+    "double", "name": "OrderAmountHikeFromlastYear", "required": true}, {"type": "double",
+    "name": "CouponUsed", "required": true}, {"type": "double", "name": "OrderCount",
+    "required": true}, {"type": "double", "name": "DaySinceLastOrder", "required":
+    true}, {"type": "double", "name": "CashbackAmount", "required": true}]'
+  outputs: '[{"type": "tensor", "tensor-spec": {"dtype": "int64", "shape": [-1]}}]'
+  params: null
+utc_time_created: '2024-08-17 12:59:10.858899'
