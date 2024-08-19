@@ -1,0 +1,29 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+flask = "==3.0.3"
+mlflow = "==2.15.1"
+numpy = "==1.26.4"
+pandas = "==2.2.1"
+prefect = "==2.19.8"
+pyyaml = "==6.0.1"
+requests = "==2.32.3"
+scikit-learn = "==1.5.1"
+werkzeug = "==3.0.3"
+python-dotenv = "==1.0.1"
+dataclasses==0.6
+pymongo = "==4.8.0"
+whylogs = {extras = ["viz"], version = "*"}
+
+[dev-packages]
+pytest = "7.4.3"
+pylint = "==2.14.4"
+black = "24.4.2"
+isort = "5.13.2"
+pre-commit = "3.7.1"
+
+[requires]
+python_version = "3.11"
