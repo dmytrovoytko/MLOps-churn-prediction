@@ -14,7 +14,7 @@ requests = "==2.32.3"
 scikit-learn = "==1.5.1"
 werkzeug = "==3.0.3"
 python-dotenv = "==1.0.1"
-dataclasses==0.6
+dataclasses = "0.6"
 pymongo = "==4.8.0"
 whylogs = {extras = ["viz"], version = "*"}
 
