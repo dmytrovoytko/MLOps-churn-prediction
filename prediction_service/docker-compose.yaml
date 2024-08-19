@@ -1,0 +1,44 @@
+services:
+   
+  localstack:
+    image: localstack/localstack:latest
+    ports:
+      - "4566:4566"
+    env_file:
+      - .env
+    environment:
+      - SERVICES=s3
+      # - DEBUG=1
+    volumes:
+      - ./aws:/etc/localstack/init/ready.d
+      # ^^^ scripts must be executable! chmod +x buckets.sh
+  prediction:
+    env_file:
+      - .env
+    build:
+      context: .
+      args:
+        - S3_ENDPOINT_URL=$S3_ENDPOINT_URL
+        - S3_BUCKET=$S3_BUCKET
+        - AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+        - AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
+        - AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION      
+        - MONGODB_ADDRESS=$MONGODB_ADDRESS      
+    depends_on:
+      - localstack
+      - mongo
+    restart: unless-stopped
+    # volumes:
+    #   - ./data_store:/srv/data
+    #   - ./src:/srv/src
+    container_name: prediction-service-2
+  mongo:
+    image: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./mongo_data:/data/db
+    # networks:
+    #   - back-tier
+    #   - front-tier
+

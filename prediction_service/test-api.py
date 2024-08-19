@@ -58,29 +58,29 @@ if __name__ == '__main__':
         except Exception as e:
             print('   error:', e)
 
-    if DEBUG:
-        # let's intentionally test error request
-        row = {'test': 1}
-        print('\n\nLet\'s intentionally test error request:', row)
-        response = requests.post(url, json=row)
-        print('\n data:', row)
-        print(' response:', response.status_code)
-        print('    error?', response.text)
+    # if DEBUG:
+    #     # let's intentionally test error request
+    #     row = {'test': 1}
+    #     print('\n\nLet\'s intentionally test error request:', row)
+    #     response = requests.post(url, json=row)
+    #     print('\n data:', row)
+    #     print(' response:', response.status_code)
+    #     print('    error?', response.text)
 
-    if S3_ENDPOINT_URL:
-        # Request update model from S3 bucket
-        url = f'http://localhost:{PORT}/update'
-        row = {'update': 0}
-        print('\n\nRequest update model from S3 bucket')
-        response = requests.post(url, json=row)
-        print('\n data:', row)
-        print(' response:', response.status_code)
-        print('    error?', response.text)
+    # if S3_ENDPOINT_URL:
+    #     # Request update model from S3 bucket
+    #     url = f'http://localhost:{PORT}/update'
+    #     row = {'update': 0}
+    #     print('\n\nRequest update model from S3 bucket')
+    #     response = requests.post(url, json=row)
+    #     print('\n data:', row)
+    #     print(' response:', response.status_code)
+    #     print('    error?', response.text)
 
     if DEBUG:
         # Request service status & model info
         url = f'http://localhost:{PORT}/status'
-        row = {'test': 1}
+        row = {'status': 0}
         print('\n\nRequest model info')
         response = requests.post(url, json=row)
         print(' response:', response.status_code)
