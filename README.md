@@ -87,6 +87,8 @@ Data preprocessing includes removing some unuseful columns, fixing missing value
 
 ![Dataset details](/screenshots/dataset-info-1.png)
 
+For more info check out [Jupyter notebook](/EDA/churn_prediction_EDA.ipynb)
+
 ### Train model
 
 Run `bash run-train-model.sh` or go to `train_model` directory and run `python orchestrate.py`.
