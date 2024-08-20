@@ -2,9 +2,15 @@ name: Run tests in Docker
 
 on:
   push:
+    paths:
+       - 'train_model/**.py'
+       # - 'prediction_service/**.py'
     branches:
       - main
   pull_request:
+    paths:
+       - 'train_model/**.py'
+       # - 'prediction_service/**.py'
     branches:
       - main
 
