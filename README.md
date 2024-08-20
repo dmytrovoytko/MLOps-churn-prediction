@@ -8,7 +8,7 @@ Several models trained and optimized on 2 Churn datasets
 1. [Ecommerce Customer Churn Analysis and Prediction](https://www.kaggle.com/datasets/ankitverma2010/ecommerce-customer-churn-analysis-and-prediction/data)
 2. [DQLab Telco Final](https://www.kaggle.com/datasets/samran98/customer-churn-telco-final/data)
 
-3 classifiers used for prediction:
+3 classifiers used for prediction (known as effective for churn prediction):
 - DecisionTreeClassifier
 - RandomForestClassifier
 - XGBClassifier
@@ -102,9 +102,9 @@ NB Your local install/environment might require starting prefect server before r
 ![MLFlow experiments training churn model](/screenshots/mlflow-experiments-2.png)
 
 
-Prefect orchestration
+#### Prefect orchestration
 
-Prefecr workflow is located in `orchestrate.py`.
+Prefect workflow is located in `orchestrate.py`.
 It trains 3 classifiers - DecisionTree, RandomForest and XGBoost. DecisionTree is very fast end quite effective, the others require more time, so I disabled them for your convenience:
 ```
     for classifier in [
@@ -157,10 +157,20 @@ Monitoring is made by storing requests and predictions in MongoDb database, then
 
 By using 3 classifiers and tuning different hyper parameters I managed to achive 99% accuracy for dataset 1.
 The best results achieved by using XGBClassifier.
+To be honest I was surprised how those hyperparameters affect prediction accuracy! You have very low chances to find optimal combination just by playing with Jupyter notebooks - MLFlow rules!
+Another surprise is that DecisionTreeClassifier can be quite close in accuracy with much faster execution! Of course, it depends on dataset.
 
 ![Trained churn model: results](/screenshots/prediction-accuracy-dataset1.png)
 
 You can find additional information which parameners result better performance on [screenshots](/screenshots).
+
+As I mentioned, I experimented with 2 datasets, and made web service flexible enough to
+
+- recognize change of dataset and redirect to respective model prediction
+- update model files from S3 bucket, making possible to monitor data, retrain model and command service to 'upgrade' without restarting the service.
+- check service parameters by /status request (check `app.py`)
+
+That was fun!
 
 ## Next steps
 
