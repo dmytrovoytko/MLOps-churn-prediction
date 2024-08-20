@@ -163,5 +163,5 @@ cython_debug/
 
 *.parquet
 mlruns
-
+mongo_data
 _tmp*
