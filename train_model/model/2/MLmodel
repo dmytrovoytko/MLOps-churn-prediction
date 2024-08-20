@@ -12,11 +12,11 @@ flavors:
     code: null
     pickled_model: model.pkl
     serialization_format: cloudpickle
-    sklearn_version: 1.5.0
+    sklearn_version: 1.5.1
 mlflow_version: 2.15.1
 model_size_bytes: 982141
-model_uuid: aea4462c16e54bbb9f380746126abf74
-run_id: 4b3655fc811a48f9b2246e3ee848c826
+model_uuid: 0117445224d44a68993e4ff0b9dd63a4
+run_id: b0e67af8e13c480e8de21c6416d5ef41
 signature:
   inputs: '[{"type": "double", "name": "gender", "required": true}, {"type": "double",
     "name": "SeniorCitizen", "required": true}, {"type": "double", "name": "Partner",
@@ -28,4 +28,4 @@ signature:
     "double", "name": "TotalCharges", "required": true}]'
   outputs: '[{"type": "tensor", "tensor-spec": {"dtype": "int64", "shape": [-1]}}]'
   params: null
-utc_time_created: '2024-08-17 12:33:48.348619'
+utc_time_created: '2024-08-20 11:45:18.581247'

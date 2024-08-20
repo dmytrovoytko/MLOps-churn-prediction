@@ -1,13 +1,13 @@
 # import warnings # supress warnings
 # warnings.filterwarnings('ignore')
 
+import os
 import pickle
 
 import numpy as np
 import pandas as pd
-from sklearn.preprocessing import OrdinalEncoder
-
 from settings import DATA_DIR, DATASET_NUM, MODEL_DIR, REMOVE_OUTLIERS, TARGET
+from sklearn.preprocessing import OrdinalEncoder
 
 # Display all columns
 # pd.set_option('display.max_columns', None)
@@ -16,7 +16,7 @@ from settings import DATA_DIR, DATASET_NUM, MODEL_DIR, REMOVE_OUTLIERS, TARGET
 
 from settings import DEBUG  # isort:skip
 
-# DEBUG = True  # True # False # override global settings
+DEBUG = True  # True # False # override global settings
 
 from utils import S3_ENDPOINT_URL, S3_BUCKET  # isort:skip
 
@@ -191,6 +191,8 @@ def preprocess_data(df, ord_enc, dataset_num=DATASET_NUM, fit_enc=False):
         if fit_enc:
             # Fit and Transform the data
             df[categorical_features] = ord_enc.fit_transform(df[categorical_features])
+            # ensure directoty exists
+            os.makedirs(model_dir(dataset_num), exist_ok=True)
             enc_save(ord_enc, f'{model_dir(dataset_num)}encoder.pkl')
             if DEBUG:
                 print(' OrdinalEncoder categories:', ord_enc.categories_)
@@ -227,6 +229,7 @@ if __name__ == '__main__':
     for dataset_num in [1, 2]:
         # full dataset
         df = load_data(dataset_num)  # load dataset and train encoder
+        df.info()
         print(f'\nfull dataset {dataset_num} head(5)\n', df.head(5).to_string())
 
         # mini dataset 1

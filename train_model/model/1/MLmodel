@@ -12,11 +12,11 @@ flavors:
     code: null
     pickled_model: model.pkl
     serialization_format: cloudpickle
-    sklearn_version: 1.5.0
+    sklearn_version: 1.5.1
 mlflow_version: 2.15.1
 model_size_bytes: 1328949
-model_uuid: 54b60a8f531047cd85719ac85094ac9f
-run_id: b2b2d7944a524f8581fe1327b637cef1
+model_uuid: ad12bef29f554f54b3e9634bc5f689af
+run_id: 8670caec7e414aa88f96731ed0d21ee4
 signature:
   inputs: '[{"type": "double", "name": "Tenure", "required": true}, {"type": "double",
     "name": "PreferredLoginDevice", "required": true}, {"type": "long", "name": "CityTier",
@@ -34,4 +34,4 @@ signature:
     true}, {"type": "double", "name": "CashbackAmount", "required": true}]'
   outputs: '[{"type": "tensor", "tensor-spec": {"dtype": "int64", "shape": [-1]}}]'
   params: null
-utc_time_created: '2024-08-17 12:59:10.858899'
+utc_time_created: '2024-08-20 11:27:23.037957'
