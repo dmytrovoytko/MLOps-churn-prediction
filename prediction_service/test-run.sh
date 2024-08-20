@@ -7,16 +7,16 @@ cp ../train_model/preprocess.py .
 cp ../train_model/predict.py .
 cp ../train_model/settings.py .
 cp ../train_model/utils.py .
-# cp .env .
+cp test.env .env
 
-if [[ -e ".env" ]]
+if [[ -e "test.env" ]]
   then
     # loading script parameters from .env
     set -a            
-    source .env
+    source test.env
     set +a
 else
-    echo "No .env file with paramaters found. Exiting."
+    echo "No test.env file with paramaters found. Exiting."
     exit 1
 fi
 
