@@ -9,7 +9,6 @@ import mlflow
 from mlflow.entities import ViewType
 from mlflow.tracking import MlflowClient
 from prefect import flow, task
-
 from settings import DATA_DIR, DATASET_NUM, EXPERIMENT_NAME, MODEL_DIR, MODEL_PREFIX, TARGET
 
 from settings import DEBUG  # isort:skip
@@ -20,6 +19,7 @@ from utils import S3_ENDPOINT_URL, S3_BUCKET  # isort:skip
 
 from predict import predict_df, print_results
 from preprocess import load_data
+
 from train_model import train_model
 
 ###########################
@@ -55,7 +55,6 @@ def feature_importances_chart(feature_importances, classifier_name):
     import matplotlib.pyplot as plt
     import pandas as pd
     import seaborn as sns
-
     from settings import VISUALS_DIR
 
     df = (
@@ -161,23 +160,26 @@ def run_register_model(MODEL_DIR, top_n: int = 1):
     print(f'\nModel saved to {dest}')
 
     if S3_ENDPOINT_URL:
-        from utils import S3 as s3
-        from utils import s3_list_buckets, s3_list_objects, s3_upload_files
+        try:
+            from utils import S3 as s3
+            from utils import s3_list_buckets, s3_list_objects, s3_upload_files
 
-        buckets = s3_list_buckets(s3)
-        bucket_name = S3_BUCKET
-        if not bucket_name in buckets:
-            s3.create_bucket(Bucket=bucket_name)
             buckets = s3_list_buckets(s3)
-            print(S3_BUCKET, 'created?', buckets)
-        # upload model dir & encoder file to S3 BUCKET
-        s3_upload_files(s3, bucket_name, MODEL_DIR, prefix_key=MODEL_PREFIX)
-        s3_upload_files(s3, bucket_name, f'{MODEL_DIR}encoder.pkl', prefix_key=MODEL_PREFIX)
-        if DEBUG:
-            objects = s3_list_objects(s3, bucket_name, filter='')
-            print('\n--------')
-            print('S3 objects:', sorted(objects))
-            print('--------')
+            bucket_name = S3_BUCKET
+            if not bucket_name in buckets:
+                s3.create_bucket(Bucket=bucket_name)
+                buckets = s3_list_buckets(s3)
+                print(S3_BUCKET, 'created?', buckets)
+            # upload model dir & encoder file to S3 BUCKET
+            s3_upload_files(s3, bucket_name, MODEL_DIR, prefix_key=MODEL_PREFIX)
+            s3_upload_files(s3, bucket_name, f'{MODEL_DIR}encoder.pkl', prefix_key=MODEL_PREFIX)
+            if DEBUG:
+                objects = s3_list_objects(s3, bucket_name, filter='')
+                print('\n--------')
+                print('S3 objects:', sorted(objects))
+                print('--------')
+        except Exception as e:
+            print('!!! Uploading model to S3 failed:', e)
 
     # run_id = best_run.info.run_id
     model_features(MODEL_DIR, verbose=DEBUG)
