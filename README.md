@@ -76,12 +76,13 @@ Thanks to MLOps ZoomCamp for the reason to learn many new tools!
 
 - Clone repositoty, `cd MLOps-churn`
 - steps 3. and 4. from above
-NB Tested with python 3.11 and 3.12. As packages versions might conflict with yours, Github CodeSpaces could be a good solution. Or you can just create a new virtual environment using `python -m venv mlopsenv` and then `source mlopsenv/bin/activate`.
+
+NB Tested with python 3.11 and 3.12. As packages versions might conflict with yours, Github CodeSpaces could be a good solution. Or you can just create a new virtual environment using `python -m venv mlopsenv` and then `source mlopsenv/bin/activate`, or by using `pipenv install`.
 
 ### :arrow_heading_down: Dataset
 
 Dataset files are small enough, included in repo. Located in `./train_model/data/` directory.
-You can switch dataset in `./train_model/settings.py`, as well as paths and other parameters.
+You can switch dataset in `train_model/settings.py`, as well as paths and other parameters.
 Data preprocessing includes removing some unuseful columns, fixing missing values and encoding categorical columns. Encoders are different for each dataset as columns set differs, so stored in separate directories (with models).
 
 ![Dataset details](/screenshots/dataset-info-1.png)
@@ -93,7 +94,7 @@ This will start Prefect workflow to
 - load training data (dataset 1 or 2 according to `settings.py`), training encoder
 - call `run_experiment()` with different hyper parameters and showing accuracy results (dataset is split - train, test)
 - call `run_register_model()` to register the best model, which will be saved to `./model` sub-directory (1 or 2)
-- call `test_model` to verify accuracy on the whole dataset
+- call `test_model()` to verify accuracy on the whole dataset
 
 To explore results go to `train_model` directory and run `mlflow server`.
 
