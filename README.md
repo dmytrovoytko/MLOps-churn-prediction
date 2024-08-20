@@ -143,7 +143,7 @@ Advanced testing can be executed by running `docker compose up --build` in `pred
 
 To deploy web service set your parameters in `test.env` file, then run `bash deploy-service.sh`.
 
-Monitoring is made by storing requests and predictions in MongoDb database, then using WhyLogs to check data/prediction drift.
+Monitoring is made by storing requests and predictions in MongoDb database, then using WhyLogs (`data-drift-test.py`) to check data/prediction drift [example](/screenshots/example2.html).
 
 ### Best practices
 
