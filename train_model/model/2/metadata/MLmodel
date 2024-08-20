@@ -1,0 +1,31 @@
+artifact_path: model
+flavors:
+  python_function:
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.sklearn
+    model_path: model.pkl
+    predict_fn: predict
+    python_version: 3.11.8
+  sklearn:
+    code: null
+    pickled_model: model.pkl
+    serialization_format: cloudpickle
+    sklearn_version: 1.5.0
+mlflow_version: 2.12.2
+model_size_bytes: 982141
+model_uuid: 084566fa044240c19e0767671bd22c07
+run_id: 692ff3e2f3ac4c1489856622edf9fd71
+signature:
+  inputs: '[{"type": "double", "name": "gender", "required": true}, {"type": "double",
+    "name": "SeniorCitizen", "required": true}, {"type": "double", "name": "Partner",
+    "required": true}, {"type": "long", "name": "tenure", "required": true}, {"type":
+    "double", "name": "PhoneService", "required": true}, {"type": "double", "name":
+    "StreamingTV", "required": true}, {"type": "double", "name": "InternetService",
+    "required": true}, {"type": "double", "name": "PaperlessBilling", "required":
+    true}, {"type": "double", "name": "MonthlyCharges", "required": true}, {"type":
+    "double", "name": "TotalCharges", "required": true}]'
+  outputs: '[{"type": "tensor", "tensor-spec": {"dtype": "int64", "shape": [-1]}}]'
+  params: null
+utc_time_created: '2024-08-12 18:32:43.174747'

@@ -1,0 +1,24 @@
+[tool.pylint.messages_control]
+
+disable = [
+    "missing-function-docstring",
+    "missing-final-newline",
+    "missing-class-docstring",
+    "missing-module-docstring",
+    "invalid-name",
+    "too-few-public-methods"
+]
+
+[tool.black]
+line-length = 100
+target-version = ['py311']
+skip-string-normalization = true
+
+[tool.isort]
+multi_line_output = 3
+# length_sort = true
+line_length = 100
+skip = ["settings.py", ".gitignore", ".dockerignore"]
+no_inline_sort = true
+ignore_comments = true
+profile = "black"
