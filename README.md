@@ -153,6 +153,8 @@ Monitoring is made by storing requests and predictions in MongoDb database, then
     * [x] Code formatter (isort, black)
     * [x] Makefile
     * [x] Pre-commit hooks
+    * [x] Github workflow for testing on push/pull request
+
 
 ## Current results of training
 
